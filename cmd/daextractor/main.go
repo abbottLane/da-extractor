@@ -19,28 +19,28 @@ func main() {
 	a := app.New()
 	w := a.NewWindow("DA Extractor!")
 	// Create a new label and button.
-	instruction := widget.NewLabel("1. Select a text file to extract data from:")
+	instruction := widget.NewLabel("1. Select a text file to extract data from, \nor simply write you text into the input box:")
 	// Create a new label to display the selected file name.
 	selectedFileName := widget.NewLabel("")
 	// Create a new label to display the selected file contents.
 	textDisplayArea := widget.NewMultiLineEntry()
 	textDisplayArea.Wrapping = fyne.TextWrapWord
 	textDisplayAreaScroll := container.NewScroll(textDisplayArea)
-	textDisplayAreaScroll.SetMinSize(fyne.NewSize(400, 400))
+	textDisplayAreaScroll.SetMinSize(fyne.NewSize(400, 600))
 	// Create a new label to display the selected file's analyzed content'.
 	resultDisplayArea := widget.NewMultiLineEntry()
 	resultDisplayArea.Wrapping = fyne.TextWrapWord
 	resultDisplayAreaScroll := container.NewScroll(resultDisplayArea)
-	resultDisplayAreaScroll.SetMinSize(fyne.NewSize(400, 400))
+	resultDisplayAreaScroll.SetMinSize(fyne.NewSize(400, 600))
 	// Create a new label to display the loaded text.
-	loadedTextArea := widget.NewLabel("LOADED TEXT")
+	loadedTextArea := widget.NewLabel("INPUT TEXT")
 	// Create a new label to display the analysis result.
-	resultTextArea := widget.NewLabel("ANALYSIS RESULT")
+	resultTextArea := widget.NewLabel("ANALYSIS RESULT (json format)")
 	// Create a new widget to collect a list of strings from the user
-	tagsetInstructions := widget.NewLabel("2. Enter a list of discourse functions to analyze for, separated by newlines:")
+	tagsetInstructions := widget.NewLabel("2. Enter a list of discourse functions to analyze for, \nseparated by newlines:")
 	tagset := widget.NewMultiLineEntry()
 	tagset.SetText("statement\nquestion\nexclamation\ndirective\nappreciation\nagreement\ndisagreement\nelaboration\nbackground\ncontinuation\nconjunction\nsummary\nrestatement\nother")
-	tagset.SetMinRowsVisible(20)
+	tagset.SetMinRowsVisible(15)
 
 	loadfile := widget.NewButton("Choose File", func() {
 		// Create a new file open dialog for loading files.

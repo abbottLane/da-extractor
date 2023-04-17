@@ -42,7 +42,7 @@ func readResponse(resp []byte) (map[string]interface{}, error) {
 	return data, nil
 }
 
-func DiscourseCall(prompt string, credentialPath string) map[string]interface{} {
+func DiscourseCall(prompt string, credential string) interface{} {
 	data := map[string]interface{}{
 		"model": "gpt-4",
 		"messages": []map[string]interface{}{
@@ -52,8 +52,13 @@ func DiscourseCall(prompt string, credentialPath string) map[string]interface{} 
 		},
 	}
 
+	credentials, err := loadCredentials("./llm_key.txt")
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+
 	body, _ := json.Marshal(data)
-	credentials, err := loadCredentials(credentialPath)
 	req, err := http.NewRequest("POST", "https://api.openai.com/v1/chat/completions", bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+credentials)
@@ -75,5 +80,5 @@ func DiscourseCall(prompt string, credentialPath string) map[string]interface{} 
 		os.Exit(1)
 	}
 	response, err := readResponse(responseBody)
-	return response
+	return response["choices"].([]interface{})[0].(map[string]interface{})["message"].(map[string]interface{})["content"]
 }

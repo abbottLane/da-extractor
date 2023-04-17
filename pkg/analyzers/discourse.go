@@ -10,16 +10,16 @@ type DiscourseAnalyzer struct {
 	apiKey     string
 }
 
-func NewDiscourseAnalyzer(apiService string, apiKey string) *DiscourseAnalyzer {
+func NewDiscourseAnalyzer(apiService string) *DiscourseAnalyzer {
 	// print out the apiService and apiKey
-	return &DiscourseAnalyzer{apiService: apiService, apiKey: apiKey}
+	return &DiscourseAnalyzer{apiService: apiService}
 }
 
-func (da *DiscourseAnalyzer) Analyze(text string) map[string]interface{} {
+func (da *DiscourseAnalyzer) Analyze(text string) string {
 	// Make a call to the discourse API
 	// The pkg/api/llmAPI.go file has a function called discourseCall that makes a call to the discourse API
 
 	result := llm.DiscourseCall(text, da.apiKey)
-	// return the result of the discourse call
-	return result
+	// return the resul"t of the discourse call
+	return result.(string)
 }

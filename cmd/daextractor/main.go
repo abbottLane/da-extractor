@@ -19,14 +19,22 @@ func main() {
 	w := a.NewWindow("DA Extractor!")
 	// Create a new label and button.
 	instruction := widget.NewLabel("Select a text file to extract data from:")
+	// Create a new label to display the selected file name.
 	selectedFileName := widget.NewLabel("")
+	// Create a new label to display the selected file contents.
 	textDisplayArea := widget.NewLabelWithStyle("", fyne.TextAlignLeading, fyne.TextStyle{Monospace: true})
+	textDisplayArea.Wrapping = fyne.TextWrapWord
+	textDisplayAreaScroll := container.NewScroll(textDisplayArea)
+	textDisplayAreaScroll.SetMinSize(fyne.NewSize(400, 400))
+	// Create a new label to display the selected file's analyzed content'.
 	resultDisplayArea := widget.NewLabelWithStyle("", fyne.TextAlignLeading, fyne.TextStyle{Monospace: true})
-	loadedTextArea := widget.NewLabel("Loaded text displays here...")
-	resultTextArea := widget.NewLabel("Analysis displayed here...")
-	// Create a text entry widget for the API key
-	keyInput := widget.NewEntry()
-	keyInput.SetPlaceHolder("Enter your API key here")
+	resultDisplayArea.Wrapping = fyne.TextWrapWord
+	resultDisplayAreaScroll := container.NewScroll(resultDisplayArea)
+	resultDisplayAreaScroll.SetMinSize(fyne.NewSize(400, 400))
+	// Create a new label to display the loaded text.
+	loadedTextArea := widget.NewLabel("LOADED TEXT")
+	// Create a new label to display the analysis result.
+	resultTextArea := widget.NewLabel("ANALYSIS RESULT")
 
 	loadfile := widget.NewButton("Choose File", func() {
 		// Create a new file open dialog for loading files.
@@ -59,17 +67,15 @@ func main() {
 	analyzeButton := widget.NewButton("Analyze", func() {
 		// Create a button that will take the value of the content variable and send it to the discourse analyzer
 		if len(content) != 0 {
-			println("file selected")
+			resultDisplayArea.SetText("Analyzing...(this could take up to a minute or two)")
 			//process the text content into sentences
-			discourseAnalyzer := analyzers.NewDiscourseAnalyzer("openAI", keyInput.Text)
+			discourseAnalyzer := analyzers.NewDiscourseAnalyzer("openAI")
 			analyzedResult := discourseAnalyzer.Analyze(string(content))
-			println(analyzedResult)
-			resultDisplayArea.SetText("analyzed palceholdr text")
+			resultDisplayArea.SetText(analyzedResult)
 
 		} else {
-			println("no file selected")
 			// Show an error dialog if no file is selected
-			errDialog := dialog.NewError(errors.New("No file selected"), w)
+			errDialog := dialog.NewError(errors.New("no file selected"), w)
 			errDialog.Show()
 		}
 	})
@@ -79,18 +85,17 @@ func main() {
 		container.NewHBox(
 			container.NewVBox(
 				instruction,
-				keyInput,
 				selectedFileName,
 				loadfile,
 				analyzeButton,
 			),
 			container.NewVBox(
 				loadedTextArea,
-				textDisplayArea,
+				textDisplayAreaScroll,
 			),
 			container.NewVBox(
 				resultTextArea,
-				resultDisplayArea,
+				resultDisplayAreaScroll,
 			),
 		),
 	)

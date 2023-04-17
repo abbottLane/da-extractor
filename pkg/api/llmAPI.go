@@ -42,14 +42,10 @@ func readResponse(resp []byte) (map[string]interface{}, error) {
 	return data, nil
 }
 
-func DiscourseCall(prompt string, credential string) interface{} {
+func DiscourseCall(messages []map[string]interface{}, credential string) interface{} {
 	data := map[string]interface{}{
-		"model": "gpt-4",
-		"messages": []map[string]interface{}{
-			{"role": "system",
-				"content": "You are an agent that performs discourse analysis on text. You are given a prompt and you must first split the given text into sentences separated by newlines. For each line you label the discourse function of the sentence."},
-			{"role": "user", "content": prompt},
-		},
+		"model":    "gpt-4",
+		"messages": messages,
 	}
 
 	credentials, err := loadCredentials("./llm_key.txt")

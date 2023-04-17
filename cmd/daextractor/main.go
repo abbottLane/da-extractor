@@ -4,6 +4,7 @@ import (
 	analyzers "daextractor/pkg/analyzers"
 	"errors"
 	"io/ioutil"
+	"strings"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -18,16 +19,16 @@ func main() {
 	a := app.New()
 	w := a.NewWindow("DA Extractor!")
 	// Create a new label and button.
-	instruction := widget.NewLabel("Select a text file to extract data from:")
+	instruction := widget.NewLabel("1. Select a text file to extract data from:")
 	// Create a new label to display the selected file name.
 	selectedFileName := widget.NewLabel("")
 	// Create a new label to display the selected file contents.
-	textDisplayArea := widget.NewLabelWithStyle("", fyne.TextAlignLeading, fyne.TextStyle{Monospace: true})
+	textDisplayArea := widget.NewMultiLineEntry()
 	textDisplayArea.Wrapping = fyne.TextWrapWord
 	textDisplayAreaScroll := container.NewScroll(textDisplayArea)
 	textDisplayAreaScroll.SetMinSize(fyne.NewSize(400, 400))
 	// Create a new label to display the selected file's analyzed content'.
-	resultDisplayArea := widget.NewLabelWithStyle("", fyne.TextAlignLeading, fyne.TextStyle{Monospace: true})
+	resultDisplayArea := widget.NewMultiLineEntry()
 	resultDisplayArea.Wrapping = fyne.TextWrapWord
 	resultDisplayAreaScroll := container.NewScroll(resultDisplayArea)
 	resultDisplayAreaScroll.SetMinSize(fyne.NewSize(400, 400))
@@ -35,6 +36,11 @@ func main() {
 	loadedTextArea := widget.NewLabel("LOADED TEXT")
 	// Create a new label to display the analysis result.
 	resultTextArea := widget.NewLabel("ANALYSIS RESULT")
+	// Create a new widget to collect a list of strings from the user
+	tagsetInstructions := widget.NewLabel("2. Enter a list of discourse functions to analyze for, separated by newlines:")
+	tagset := widget.NewMultiLineEntry()
+	tagset.SetText("statement\nquestion\nexclamation\ndirective\nappreciation\nagreement\ndisagreement\nelaboration\nbackground\ncontinuation\nconjunction\nsummary\nrestatement\nother")
+	tagset.SetMinRowsVisible(20)
 
 	loadfile := widget.NewButton("Choose File", func() {
 		// Create a new file open dialog for loading files.
@@ -64,15 +70,32 @@ func main() {
 		dialog.Show()
 	})
 
+	analyzeInstructions := widget.NewLabel("3. Click the button to analyze the text:")
 	analyzeButton := widget.NewButton("Analyze", func() {
 		// Create a button that will take the value of the content variable and send it to the discourse analyzer
 		if len(content) != 0 {
+			// read the tagset into a list of strings
+			tagset := tagset.Text
+			// split tagset on newlines
+			tagset_list := strings.Split(tagset, "\n")
+
 			resultDisplayArea.SetText("Analyzing...(this could take up to a minute or two)")
 			//process the text content into sentences
 			discourseAnalyzer := analyzers.NewDiscourseAnalyzer("openAI")
-			analyzedResult := discourseAnalyzer.Analyze(string(content))
+			analyzedResult := discourseAnalyzer.Analyze(string(content), tagset_list)
 			resultDisplayArea.SetText(analyzedResult)
 
+		} else if len(textDisplayArea.Text) != 0 {
+			// read the tagset into a list of strings
+			tagset := tagset.Text
+			// split tagset on newlines
+			tagset_list := strings.Split(tagset, "\n")
+
+			resultDisplayArea.SetText("Analyzing...(this could take up to a minute or two)")
+			//process the text content into sentences
+			discourseAnalyzer := analyzers.NewDiscourseAnalyzer("openAI")
+			analyzedResult := discourseAnalyzer.Analyze(textDisplayArea.Text, tagset_list)
+			resultDisplayArea.SetText(analyzedResult)
 		} else {
 			// Show an error dialog if no file is selected
 			errDialog := dialog.NewError(errors.New("no file selected"), w)
@@ -87,6 +110,9 @@ func main() {
 				instruction,
 				selectedFileName,
 				loadfile,
+				tagsetInstructions,
+				tagset,
+				analyzeInstructions,
 				analyzeButton,
 			),
 			container.NewVBox(
